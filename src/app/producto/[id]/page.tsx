@@ -166,6 +166,12 @@ export default function ProductDetailPage() {
       api.getProducts({ page: 1, limit: 5, categoryId: product?.category?._id })
   );
 
+  // Al entrar a un producto (o saltar a otro desde "Te puede gustar"),
+  // arrancamos arriba: Next no siempre resetea el scroll entre rutas [id].
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   // Cuando carga un producto de peso a elección, arranca en su peso mínimo.
   useEffect(() => {
     if (!product) return;
