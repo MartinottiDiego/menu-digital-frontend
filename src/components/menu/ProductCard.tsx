@@ -5,7 +5,12 @@ import { Icon } from '@/components/ui/Icons';
 import { Price } from '@/components/ui/Price';
 import type { Product } from '@/lib/types';
 import { fmtPrice } from '@/lib/utils';
-import { productKind, productDisplayPrice } from '@/lib/product';
+import {
+  productKind,
+  productDisplayPrice,
+  stockText,
+  isLowStock,
+} from '@/lib/product';
 
 interface ProductCardProps {
   product: Product;
@@ -66,6 +71,12 @@ export function ProductCard({
             ≈ {product.unitWeightKg} kg · {fmtPrice(product.price)}/kg
           </div>
         ) : null}
+        <div
+          className="mt-0.5 text-[11px] font-semibold"
+          style={{ color: isLowStock(product) ? '#e0a93a' : 'var(--tan-dim)' }}
+        >
+          {stockText(product)}
+        </div>
         {atMax ? (
           // Ya agregaste todo el stock disponible → el botón lleva al carrito.
           <button

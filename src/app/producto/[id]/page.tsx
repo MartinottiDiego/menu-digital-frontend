@@ -20,6 +20,8 @@ import {
   looseStep,
   looseMin,
   reachedStockMax,
+  stockText,
+  isLowStock,
 } from '@/lib/product';
 import { Icon, type IconName } from '@/components/ui/Icons';
 import { Price } from '@/components/ui/Price';
@@ -57,6 +59,8 @@ function AmountControl({
   big?: boolean;
 }) {
   const bs = big ? '!h-9 !w-9' : '!h-8 !w-8';
+  // Estilo "deshabilitado": gris + cursor bloqueado (al tope/mínimo).
+  const dis = { opacity: 0.3, cursor: 'not-allowed' } as const;
   if (loose) {
     return (
       <div
@@ -70,6 +74,8 @@ function AmountControl({
               Math.max(min, +((Number.isFinite(w) ? w : min) - step).toFixed(2))
             )
           }
+          disabled={Number.isFinite(weight) && weight <= min}
+          style={Number.isFinite(weight) && weight <= min ? dis : undefined}
           aria-label="Menos peso"
         >
           −
@@ -101,6 +107,7 @@ function AmountControl({
             )
           }
           disabled={Number.isFinite(weight) && weight >= max}
+          style={Number.isFinite(weight) && weight >= max ? dis : undefined}
           aria-label="Más peso"
         >
           +
@@ -113,7 +120,13 @@ function AmountControl({
       className={cn('qty-ctl rounded-[12px] px-2', big ? 'h-[54px]' : 'h-[52px]')}
       style={{ boxShadow: 'inset 0 0 0 1px var(--line)' }}
     >
-      <button className={bs} onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Menos">
+      <button
+        className={bs}
+        onClick={() => setQty((q) => Math.max(1, q - 1))}
+        disabled={qty <= 1}
+        style={qty <= 1 ? dis : undefined}
+        aria-label="Menos"
+      >
         −
       </button>
       <span className="tnum min-w-[36px] text-[15px]">{qty}</span>
@@ -121,6 +134,7 @@ function AmountControl({
         className={bs}
         onClick={() => setQty((q) => Math.min(max, q + 1))}
         disabled={qty >= max}
+        style={qty >= max ? dis : undefined}
         aria-label="Más"
       >
         +
@@ -371,6 +385,12 @@ export default function ProductDetailPage() {
                         : 'Precio por unidad.'
                 }
               />
+            </div>
+            <div
+              className="mb-[18px] -mt-3 text-[13.5px] font-semibold"
+              style={{ color: isLowStock(product) ? '#e0a93a' : 'var(--tan-dim)' }}
+            >
+              {outOfStock ? 'Sin stock' : `Stock: ${stockText(product)}`}
             </div>
             {product.description && (
               <p className="mb-6 text-[15px] leading-[1.65] text-tan">

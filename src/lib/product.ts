@@ -65,6 +65,24 @@ export function looseMin(p: Product): number {
   return p.minWeightKg && p.minWeightKg > 0 ? p.minWeightKg : looseStep(p);
 }
 
+/** Texto de stock disponible según el tipo de venta (unidades / kg / piezas). */
+export function stockText(p: Product): string {
+  if (productMode(p) === 'pieces') {
+    const n = availablePieces(p).length;
+    return n > 0 ? `${n} disponibles` : 'Sin stock';
+  }
+  const s = p.stock ?? 0;
+  if (s <= 0) return 'Sin stock';
+  if (productKind(p) === 'loose') return `${s} kg disponibles`;
+  return `${s} ${s === 1 ? 'disponible' : 'disponibles'}`;
+}
+
+/** Stock "bajo" para resaltar (≤ 5 unidades/kg/piezas, y > 0). */
+export function isLowStock(p: Product): boolean {
+  const s = productMode(p) === 'pieces' ? availablePieces(p).length : p.stock ?? 0;
+  return s > 0 && s <= 5;
+}
+
 /**
  * ¿El carrito ya tiene TODO el stock disponible de este producto?
  *  - unidad/fijo → se compara por unidades (quantity).
