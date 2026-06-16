@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+.vscode
+.agents
+.claude
+npm-debug.log*
+pnpm-debug.log*
+README.md
+.env
+.env.*
+Dockerfile
+.dockerignore
+*.tsbuildinfo
+next-env.d.ts
