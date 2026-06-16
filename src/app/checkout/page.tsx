@@ -168,7 +168,8 @@ export default function CheckoutPage() {
         const qs =
           `?status=${result.status}` +
           `&payment_id=${result.paymentId}` +
-          `&external_reference=${createdOrder.orderNumber}`;
+          `&external_reference=${createdOrder.orderNumber}` +
+          `&token=${createdOrder.trackingToken ?? ''}`;
 
         // Rechazado/cancelado: la orden sigue PENDING. No navegamos ni limpiamos
         // el carrito; lanzamos para que el Brick muestre el error y el cliente

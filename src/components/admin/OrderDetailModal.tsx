@@ -92,6 +92,7 @@ export function OrderDetailModal({
                   <OrderStatusDropdown
                     currentStatus={order.status}
                     orderId={order._id}
+                    deliveryMethod={order.deliveryMethod}
                     onStatusChange={handleStatusChange}
                   />
                 </div>

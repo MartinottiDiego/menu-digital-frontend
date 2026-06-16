@@ -22,6 +22,9 @@ import {
   reachedStockMax,
   stockText,
   isLowStock,
+  wholeThreshold,
+  mustBuyWhole,
+  maxPartialKg,
 } from '@/lib/product';
 import { Icon, type IconName } from '@/components/ui/Icons';
 import { Price } from '@/components/ui/Price';
@@ -153,6 +156,8 @@ export default function ProductDetailPage() {
   const [weight, setWeight] = useState(0.5);
   // Modo piezas: se pueden elegir VARIAS a la vez.
   const [selectedPieceIds, setSelectedPieceIds] = useState<string[]>([]);
+  // Granel con umbral: el cliente eligió llevar el corte entero.
+  const [wantWhole, setWantWhole] = useState(false);
 
   const { data: product, isLoading } = useSWR<Product>(
     id ? ['product', id] : null,
@@ -175,7 +180,11 @@ export default function ProductDetailPage() {
   // Cuando carga un producto de peso a elección, arranca en su peso mínimo.
   useEffect(() => {
     if (!product) return;
-    if (productKind(product) === 'loose') setWeight(looseMin(product));
+    if (productKind(product) === 'loose') {
+      setWeight(looseMin(product));
+      // Si el corte ya solo se puede llevar entero, arrancamos en ese modo.
+      setWantWhole(mustBuyWhole(product));
+    }
     if (productMode(product) === 'pieces') {
       // Arranca con la primera pieza disponible elegida.
       const first = availablePieces(product)[0];
@@ -213,6 +222,11 @@ export default function ProductDetailPage() {
   const perKg = isPieces || isLoose; // mostrar precio por kilo
   const step = looseStep(product);
   const min = looseMin(product);
+  // Granel "llevar entero": umbral, si está forzado, máximo parcial y modo actual.
+  const threshold = isLoose ? wholeThreshold(product) : 0;
+  const forceWhole = isLoose && mustBuyWhole(product);
+  const maxPartial = isLoose ? maxPartialKg(product) : product.stock;
+  const wholeMode = isLoose && (forceWhole || wantWhole);
 
   // Piezas individuales: se pueden elegir varias a la vez.
   const pieces = isPieces ? availablePieces(product) : [];
@@ -241,11 +255,13 @@ export default function ProductDetailPage() {
   // granel por kilos). En piezas no aplica (se maneja por disponibilidad).
   const atMax = !isPieces && reachedStockMax(cartItems, product);
 
-  // Si el campo de kg está vacío (NaN mientras editás), usamos el mínimo, así
-  // el total y el "agregar al carrito" nunca quedan en NaN.
-  const effWeight = Number.isFinite(weight)
-    ? Math.max(min, +weight.toFixed(2))
-    : min;
+  // Peso efectivo: si va entero, el stock completo; si no, el elegido, acotado
+  // entre el mínimo y el máximo parcial (deja al menos el umbral en stock).
+  const effWeight = wholeMode
+    ? product.stock
+    : Number.isFinite(weight)
+      ? Math.min(maxPartial, Math.max(min, +weight.toFixed(2)))
+      : min;
 
   const previewTotal = isPieces
     ? selectedPieces.reduce((s, p) => s + piecePrice(product, p), 0)
@@ -268,56 +284,82 @@ export default function ProductDetailPage() {
     toast.success('Producto agregado al carrito');
   };
 
+  const hh = (big: boolean) => (big ? 'h-[54px]' : 'h-[52px]');
+  // Toggle "llevar entero / elegir kilos" (solo granel con umbral, no forzado).
+  const showWholeToggle = isLoose && threshold > 0 && !forceWhole && !atMax;
+
   const addControl = (big: boolean) => (
-    <>
-      {!isPieces && !atMax && (
-        <AmountControl
-          loose={isLoose}
-          qty={qty}
-          setQty={setQty}
-          weight={weight}
-          setWeight={setWeight}
-          step={step}
-          min={min}
-          max={product.stock}
-          big={big}
-        />
-      )}
-      {atMax ? (
-        // Ya agregaste todo el stock → el botón lleva al carrito.
+    <div className="flex w-full flex-col gap-2.5">
+      <div className="flex gap-3.5">
+        {wholeMode && !atMax ? (
+          <div
+            className={cn(
+              'flex flex-1 items-center justify-center rounded-[12px] px-3 text-[14px] font-bold text-cream',
+              hh(big)
+            )}
+            style={{ boxShadow: 'inset 0 0 0 1px var(--line)' }}
+          >
+            Corte entero · {product.stock} kg
+          </div>
+        ) : (
+          !isPieces &&
+          !atMax && (
+            <AmountControl
+              loose={isLoose}
+              qty={qty}
+              setQty={setQty}
+              weight={weight}
+              setWeight={setWeight}
+              step={step}
+              min={min}
+              max={maxPartial}
+              big={big}
+            />
+          )
+        )}
+        {atMax ? (
+          <button
+            onClick={() => router.push('/cart')}
+            className={cn('btn btn-gold flex-1', hh(big), big ? 'text-[14.5px]' : 'text-[13.5px]')}
+          >
+            <Icon.bag style={{ width: 18, height: 18 }} /> Ver carrito
+          </button>
+        ) : (
+          <button
+            onClick={handleAdd}
+            disabled={outOfStock || (isPieces && selectedPieces.length === 0)}
+            className={cn('btn btn-gold flex-1', hh(big), big ? 'text-[14.5px]' : 'text-[13.5px]')}
+            style={
+              outOfStock || (isPieces && selectedPieces.length === 0)
+                ? { opacity: 0.5, cursor: 'not-allowed' }
+                : undefined
+            }
+          >
+            <Icon.bag style={{ width: 18, height: 18 }} />{' '}
+            {outOfStock
+              ? 'Sin stock'
+              : isPieces
+                ? selectedPieces.length === 0
+                  ? 'Elegí un peso'
+                  : `Agregar ${+selectedPieces
+                      .reduce((s, p) => s + (p.weightKg ?? 0), 0)
+                      .toFixed(2)} kg · ${fmtPrice(previewTotal)}`
+                : `Agregar · ${fmtPrice(previewTotal)}`}
+          </button>
+        )}
+      </div>
+      {showWholeToggle && (
         <button
-          onClick={() => router.push('/cart')}
-          className={cn(
-            'btn btn-gold flex-1',
-            big ? 'h-[54px] text-[14.5px]' : 'h-[52px] text-[13.5px]'
-          )}
+          type="button"
+          onClick={() => setWantWhole((w) => !w)}
+          className="self-start text-[12.5px] font-semibold text-gold-lite underline-offset-4 hover:underline"
         >
-          <Icon.bag style={{ width: 18, height: 18 }} /> Ver carrito
-        </button>
-      ) : (
-        <button
-          onClick={handleAdd}
-          disabled={outOfStock || (isPieces && selectedPieces.length === 0)}
-          className={cn('btn btn-gold flex-1', big ? 'h-[54px] text-[14.5px]' : 'h-[52px] text-[13.5px]')}
-          style={
-            outOfStock || (isPieces && selectedPieces.length === 0)
-              ? { opacity: 0.5, cursor: 'not-allowed' }
-              : undefined
-          }
-        >
-          <Icon.bag style={{ width: 18, height: 18 }} />{' '}
-          {outOfStock
-            ? 'Sin stock'
-            : isPieces
-              ? selectedPieces.length === 0
-                ? 'Elegí un peso'
-                : `Agregar ${+selectedPieces
-                    .reduce((s, p) => s + (p.weightKg ?? 0), 0)
-                    .toFixed(2)} kg · ${fmtPrice(previewTotal)}`
-              : `Agregar · ${fmtPrice(previewTotal)}`}
+          {wantWhole
+            ? '← Elegir los kilos'
+            : `Llevar el corte entero · ${product.stock} kg`}
         </button>
       )}
-    </>
+    </div>
   );
 
   return (
@@ -476,7 +518,11 @@ export default function ProductDetailPage() {
             <div className="mb-2 hidden gap-3.5 lg:flex">{addControl(true)}</div>
             {isLoose && (
               <p className="mb-[18px] hidden text-[12px] text-tan-dim lg:block">
-                Elegí los kilos (de a {step} kg). El total se calcula solo.
+                {forceWhole
+                  ? `Este corte se lleva entero (${product.stock} kg).`
+                  : threshold > 0
+                    ? `Elegí los kilos (de a ${step} kg) o llevá el corte entero. No se puede dejar un resto menor a ${threshold} kg.`
+                    : `Elegí los kilos (de a ${step} kg). El total se calcula solo.`}
               </p>
             )}
             {isPieces && (

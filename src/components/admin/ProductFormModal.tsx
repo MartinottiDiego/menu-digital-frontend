@@ -47,6 +47,7 @@ interface FormData {
   stock: string;
   minWeightKg: string;
   stepWeightKg: string;
+  wholeThresholdKg: string;
   pieces: PieceField[];
   imageUrl: string;
   videoUrl: string;
@@ -131,6 +132,7 @@ const initialFormData: FormData = {
   stock: '0',
   minWeightKg: '0.5',
   stepWeightKg: '0.5',
+  wholeThresholdKg: '0',
   pieces: [{ weightKg: '' }],
   imageUrl: '',
   videoUrl: '',
@@ -306,6 +308,9 @@ export function ProductFormModal({
           stepWeightKg: product.stepWeightKg
             ? String(product.stepWeightKg)
             : '0.5',
+          wholeThresholdKg: product.wholeThresholdKg
+            ? String(product.wholeThresholdKg)
+            : '0',
           pieces: piecesFields.length ? piecesFields : [{ weightKg: '' }],
           imageUrl: product.imageUrl || '',
           videoUrl: product.videoUrl || '',
@@ -415,6 +420,7 @@ export function ProductFormModal({
           unitWeightKg: undefined,
           minWeightKg: undefined,
           stepWeightKg: undefined,
+          wholeThresholdKg: undefined,
           pieces: undefined,
         };
       } else if (data.sellMode === 'bulk') {
@@ -423,6 +429,7 @@ export function ProductFormModal({
           stock: toNum(data.stock),
           minWeightKg: toNum(data.minWeightKg),
           stepWeightKg: toNum(data.stepWeightKg),
+          wholeThresholdKg: toNum(data.wholeThresholdKg),
           unitWeightKg: undefined,
           pieces: undefined,
         };
@@ -437,6 +444,7 @@ export function ProductFormModal({
           unitWeightKg: undefined,
           minWeightKg: undefined,
           stepWeightKg: undefined,
+          wholeThresholdKg: undefined,
         };
       }
 
@@ -711,6 +719,26 @@ export function ProductFormModal({
                         {errors.stepWeightKg}
                       </p>
                     )}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className={labelCls}>
+                      Llevar entero cuando queden (kg)
+                      <InfoTip text="Si al corte le queda este kilaje o menos, el cliente debe llevarlo entero. Además, ninguna compra puede dejar un resto más chico que esto. Así no te quedan pedazos invendibles. 0 = desactivado." />
+                    </label>
+                    <DecimalStepper
+                      value={data.wholeThresholdKg}
+                      onChange={(v) =>
+                        setData((prev) => ({ ...prev, wholeThresholdKg: v }))
+                      }
+                      step={0.5}
+                      min={0}
+                      placeholder="Ej: 1 (0 = desactivado)"
+                      disabled={loading}
+                    />
+                    <p className="mt-1 text-xs text-white/50">
+                      0 = sin tope. Ej: 1 → cuando quede 1 kg o menos, se lleva
+                      entero.
+                    </p>
                   </div>
                 </div>
               )}

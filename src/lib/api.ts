@@ -9,6 +9,7 @@ import type {
   Combo,
   ProcessPaymentPayload,
   ProcessPaymentResponse,
+  PublicTracking,
 } from './types';
 
 async function handleResponse<T>(res: Response): Promise<T> {
@@ -78,6 +79,22 @@ export const api = {
       body: JSON.stringify(orderData),
     });
     return handleResponse<Order>(res);
+  },
+
+  // Seguimiento público del pedido por token.
+  getTracking: async (token: string) => {
+    const res = await fetch(`${API_URL}/orders/track/${token}`);
+    return handleResponse<PublicTracking>(res);
+  },
+
+  // Recuperar seguimiento: reenvía los links al email (no revela si existe).
+  recoverTracking: async (email: string) => {
+    const res = await fetch(`${API_URL}/orders/track/recover`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    return handleResponse<{ ok: boolean }>(res);
   },
 
   // Cancela una orden pendiente (libera el stock reservado al abandonar el pago).

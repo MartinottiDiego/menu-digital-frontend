@@ -98,8 +98,11 @@ export const STATUS_META: Record<string, StatusMeta> = {
   pending: { label: 'Pendiente', color: '#e0a93a', bg: 'rgba(224,169,58,.14)' },
   paid: { label: 'Pagado', color: '#5bbd7a', bg: 'rgba(91,189,122,.14)' },
   preparing: { label: 'En preparación', color: '#e0a93a', bg: 'rgba(224,169,58,.14)' },
+  on_the_way: { label: 'En camino', color: '#5bc0d4', bg: 'rgba(91,192,212,.14)' },
+  ready_for_pickup: { label: 'Listo para retirar', color: '#5bc0d4', bg: 'rgba(91,192,212,.14)' },
   delivered: { label: 'Entregado', color: '#8ea6c4', bg: 'rgba(142,166,196,.14)' },
   cancelled: { label: 'Cancelado', color: '#d4796b', bg: 'rgba(212,121,107,.14)' },
+  failed: { label: 'Fallido', color: '#d4796b', bg: 'rgba(212,121,107,.14)' },
 };
 
 export interface MyOrder {

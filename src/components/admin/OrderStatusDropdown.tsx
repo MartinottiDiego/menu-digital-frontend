@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import type { OrderStatus } from '@/lib/types';
+import type { OrderStatus, DeliveryMethod } from '@/lib/types';
 import { adminApi } from '@/lib/adminApi';
 import { useToast } from '@/hooks/useToast';
 import { OrderStatusBadge } from './OrderStatusBadge';
@@ -12,36 +12,58 @@ const statusLabels: Record<OrderStatus, string> = {
   pending: 'Pendiente',
   paid: 'Pagado',
   preparing: 'En preparación',
+  on_the_way: 'En camino',
+  ready_for_pickup: 'Listo para retirar',
   delivered: 'Entregado',
   cancelled: 'Cancelado',
+  failed: 'Fallido',
 };
 
-const allowedTransitions: Record<OrderStatus, OrderStatus[]> = {
-  pending: ['paid', 'cancelled'],
-  paid: ['preparing', 'cancelled'],
-  preparing: ['delivered', 'cancelled'],
-  delivered: [],
-  cancelled: [],
-};
+/** Próximos estados posibles. En "preparación" depende del método de entrega. */
+function nextOptions(
+  status: OrderStatus,
+  deliveryMethod?: DeliveryMethod,
+): OrderStatus[] {
+  switch (status) {
+    case 'pending':
+      return ['paid', 'cancelled'];
+    case 'paid':
+      return ['preparing', 'cancelled'];
+    case 'preparing':
+      return [
+        deliveryMethod === 'pickup' ? 'ready_for_pickup' : 'on_the_way',
+        'cancelled',
+      ];
+    case 'on_the_way':
+    case 'ready_for_pickup':
+      return ['delivered', 'cancelled'];
+    default:
+      return [];
+  }
+}
 
 interface OrderStatusDropdownProps {
   currentStatus: OrderStatus;
   orderId: string;
   onStatusChange: () => void;
+  deliveryMethod?: DeliveryMethod;
 }
 
 export function OrderStatusDropdown({
   currentStatus,
   orderId,
   onStatusChange,
+  deliveryMethod,
 }: OrderStatusDropdownProps) {
   const toast = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // Candado sincrónico: evita que clicks rápidos disparen varios updates.
+  const submittingRef = useRef(false);
 
-  const options = allowedTransitions[currentStatus];
+  const options = nextOptions(currentStatus, deliveryMethod);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -62,7 +84,10 @@ export function OrderStatusDropdown({
   };
 
   const handleConfirmChange = async () => {
-    if (!pendingStatus) return;
+    // El candado se chequea/activa de forma sincrónica: clicks repetidos
+    // mientras el primero está en vuelo se descartan (un solo update/toast).
+    if (!pendingStatus || submittingRef.current) return;
+    submittingRef.current = true;
     setLoading(true);
     try {
       await adminApi.updateOrderStatus(orderId, pendingStatus);
@@ -74,6 +99,7 @@ export function OrderStatusDropdown({
         err instanceof Error ? err.message : 'Error al actualizar estado'
       );
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };

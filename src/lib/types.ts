@@ -34,6 +34,8 @@ export interface Product {
   minWeightKg?: number;
   /** Granel ('bulk') / legacy suelto: paso del selector (default 0.5). */
   stepWeightKg?: number;
+  /** Granel: si el stock restante es ≤ esto, se lleva entero (0/undef = off). */
+  wholeThresholdKg?: number;
   stock: number;
   imageUrl: string;
   videoUrl?: string;
@@ -61,8 +63,34 @@ export type OrderStatus =
   | 'pending'
   | 'paid'
   | 'preparing'
+  | 'on_the_way'
+  | 'ready_for_pickup'
   | 'delivered'
-  | 'cancelled';
+  | 'cancelled'
+  | 'failed';
+
+/** Entrada del historial de estados (para la línea de tiempo). */
+export interface OrderStatusEntry {
+  status: OrderStatus;
+  at: string;
+}
+
+/** Subset público del pedido para la página de seguimiento (GET /orders/track/:token). */
+export interface PublicTracking {
+  orderNumber: string;
+  customerName: string;
+  status: OrderStatus;
+  deliveryMethod?: DeliveryMethod;
+  total: number;
+  createdAt: string;
+  statusHistory: OrderStatusEntry[];
+  items: {
+    name: string;
+    quantity: number;
+    weightKg?: number;
+    lineTotal: number;
+  }[];
+}
 
 /** Método de entrega del pedido. */
 export type DeliveryMethod = 'delivery' | 'pickup';
@@ -90,6 +118,8 @@ export interface Order {
   }[];
   total: number;
   status: OrderStatus;
+  /** Token para el link de seguimiento público. */
+  trackingToken?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -231,6 +261,8 @@ export interface CreateProductDto {
   unitWeightKg?: number;
   minWeightKg?: number;
   stepWeightKg?: number;
+  /** Granel: si el stock restante es ≤ esto, se lleva entero (0/undef = off). */
+  wholeThresholdKg?: number;
   stock: number;
   imageUrl?: string;
   videoUrl?: string;
@@ -249,6 +281,8 @@ export interface UpdateProductDto {
   unitWeightKg?: number;
   minWeightKg?: number;
   stepWeightKg?: number;
+  /** Granel: si el stock restante es ≤ esto, se lleva entero (0/undef = off). */
+  wholeThresholdKg?: number;
   stock?: number;
   imageUrl?: string;
   videoUrl?: string;

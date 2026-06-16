@@ -65,6 +65,39 @@ export function looseMin(p: Product): number {
   return p.minWeightKg && p.minWeightKg > 0 ? p.minWeightKg : looseStep(p);
 }
 
+/** Umbral de "llevar entero" (granel). 0 = desactivado. */
+export function wholeThreshold(p: Product): number {
+  return p.wholeThresholdKg && p.wholeThresholdKg > 0 ? p.wholeThresholdKg : 0;
+}
+
+/**
+ * ¿Este granel se debe llevar ENTERO? (cuando ninguna compra parcial dejaría un
+ * resto vendible, ej. stock ≤ umbral o min dejaría menos que el umbral).
+ */
+export function mustBuyWhole(p: Product): boolean {
+  const t = wholeThreshold(p);
+  if (t <= 0) return false;
+  const stock = p.stock ?? 0;
+  if (stock <= 0) return false;
+  return stock - t < looseMin(p) - 1e-6;
+}
+
+/**
+ * Máximo peso PARCIAL seleccionable: el mayor múltiplo del paso (desde el
+ * mínimo) que deja al menos el umbral en stock. Si no hay umbral, es el stock.
+ */
+export function maxPartialKg(p: Product): number {
+  const stock = p.stock ?? 0;
+  const t = wholeThreshold(p);
+  if (t <= 0) return stock;
+  const min = looseMin(p);
+  const step = looseStep(p);
+  const ceiling = stock - t; // dejar al menos `t`
+  if (ceiling < min) return min; // no hay parcial válido (ver mustBuyWhole)
+  const n = Math.floor((ceiling - min) / step + 1e-9);
+  return +(min + n * step).toFixed(2);
+}
+
 /** Texto de stock disponible según el tipo de venta (unidades / kg / piezas). */
 export function stockText(p: Product): string {
   if (productMode(p) === 'pieces') {

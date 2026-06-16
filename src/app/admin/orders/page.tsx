@@ -20,6 +20,8 @@ const STATUS_OPTIONS: { value: OrderStatus | 'all'; label: string }[] = [
   { value: 'pending', label: 'Pendientes' },
   { value: 'paid', label: 'Pagados' },
   { value: 'preparing', label: 'En preparación' },
+  { value: 'on_the_way', label: 'En camino' },
+  { value: 'ready_for_pickup', label: 'Listos para retirar' },
   { value: 'delivered', label: 'Entregados' },
   { value: 'cancelled', label: 'Cancelados' },
 ];

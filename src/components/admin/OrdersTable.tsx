@@ -75,6 +75,7 @@ export function OrdersTable({
                 <OrderStatusDropdown
                   currentStatus={order.status}
                   orderId={order._id}
+                  deliveryMethod={order.deliveryMethod}
                   onStatusChange={onStatusChange}
                 />
               </td>
@@ -105,15 +106,18 @@ export function OrdersTable({
                 <span className="block truncate font-mono text-sm text-gold-200">
                   {order.orderNumber}
                 </span>
-                <span className="block font-medium text-white">
+                <span className="block truncate font-medium text-white">
                   {order.customerName}
                 </span>
               </div>
-              <OrderStatusDropdown
-                currentStatus={order.status}
-                orderId={order._id}
-                onStatusChange={onStatusChange}
-              />
+              <div className="shrink-0">
+                <OrderStatusDropdown
+                  currentStatus={order.status}
+                  orderId={order._id}
+                  deliveryMethod={order.deliveryMethod}
+                  onStatusChange={onStatusChange}
+                />
+              </div>
             </div>
             <div className="mt-3 flex items-center justify-between text-sm text-white/70">
               <span>{getTotalItems(order)} items</span>

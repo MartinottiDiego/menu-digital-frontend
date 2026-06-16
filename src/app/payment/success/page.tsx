@@ -19,16 +19,18 @@ const TRACK: [string, string, 'done' | 'now' | 'todo'][] = [
 export default function PaymentSuccessPage() {
   const clearCart = useCartStore((s) => s.clearCart);
   const settings = useSettings();
-  // Nº de pedido que viaja en la URL de retorno (?external_reference=ORD-...).
+  // Nº de pedido y token de seguimiento que viajan en la URL de retorno.
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [trackToken, setTrackToken] = useState<string | null>(null);
 
   useEffect(() => {
     // El carrito se limpia solo cuando el pago se confirmó exitosamente.
     clearCart();
-    const ref = new URLSearchParams(window.location.search).get(
-      'external_reference'
-    );
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('external_reference');
+    const tok = params.get('token');
     if (ref) setOrderNumber(ref);
+    if (tok) setTrackToken(tok);
   }, [clearCart]);
 
   // Ya pagó: el mensaje es de SEGUIMIENTO (no el genérico de "quiero pedir").
@@ -109,12 +111,20 @@ export default function PaymentSuccessPage() {
             ))}
           </div>
 
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          {trackToken && (
+            <Link
+              href={`/seguimiento/${trackToken}`}
+              className="btn btn-gold mt-5 h-12 w-full text-[13.5px]"
+            >
+              <Icon.clock style={{ width: 16, height: 16 }} /> Seguir mi pedido en vivo
+            </Link>
+          )}
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-gold h-12 flex-1 text-[13.5px]"
+              className="btn btn-ghost h-12 flex-1 text-[13.5px]"
             >
               <Icon.whatsapp style={{ width: 16, height: 16 }} /> Ver en WhatsApp
             </a>
