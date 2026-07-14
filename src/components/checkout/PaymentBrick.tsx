@@ -34,6 +34,19 @@ export function PaymentBrick({ amount, payerEmail, onPay }: PaymentBrickProps) {
     if (MP_PUBLIC_KEY) {
       initMercadoPago(MP_PUBLIC_KEY, { locale: 'es-AR' });
     }
+    // Script antifraude de MP: define window.MP_DEVICE_SESSION_ID (device ID),
+    // que viaja con el pago. El SDK v2 solo NO lo genera: sin este script los
+    // pagos salen con "security:none" y MP rechaza por high_risk.
+    if (
+      !document.querySelector(
+        'script[src="https://www.mercadopago.com/v2/security.js"]',
+      )
+    ) {
+      const s = document.createElement('script');
+      s.src = 'https://www.mercadopago.com/v2/security.js';
+      s.setAttribute('view', 'checkout');
+      document.head.appendChild(s);
+    }
     setReady(true);
   }, []);
 
