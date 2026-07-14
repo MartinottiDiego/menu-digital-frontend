@@ -151,6 +151,11 @@ export default function CheckoutPage() {
       if (!createdOrder) return;
       // Pago en curso: no cancelar la orden si la pestaña se cierra ahora.
       settledRef.current = true;
+      // Device ID que genera el SDK de MP al cargarse: identifica el dispositivo
+      // del comprador ante el motor antifraude (mejora la tasa de aprobación).
+      const deviceId = (
+        window as unknown as { MP_DEVICE_SESSION_ID?: string }
+      ).MP_DEVICE_SESSION_ID;
       try {
         const result = await api.processPayment({
           orderId: createdOrder._id,
@@ -159,6 +164,7 @@ export default function CheckoutPage() {
           paymentMethodId: formData.payment_method_id,
           installments: formData.installments,
           issuerId: formData.issuer_id,
+          deviceId,
           payer: {
             email: formData.payer?.email || payerEmail,
             identification: formData.payer?.identification,

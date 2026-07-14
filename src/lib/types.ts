@@ -137,6 +137,8 @@ export interface ProcessPaymentPayload {
   paymentMethodId: string;
   installments?: number;
   issuerId?: string;
+  /** Device ID del SDK de MP (mejora la tasa de aprobación antifraude). */
+  deviceId?: string;
   payer: {
     email?: string;
     identification?: { type?: string; number?: string };
