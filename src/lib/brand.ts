@@ -105,21 +105,6 @@ export const STATUS_META: Record<string, StatusMeta> = {
   failed: { label: 'Fallido', color: '#d4796b', bg: 'rgba(212,121,107,.14)' },
 };
 
-export interface MyOrder {
-  id: string;
-  date: string;
-  items: string;
-  total: number;
-  status: string;
-}
-
-/** Pedidos de ejemplo para "Mis pedidos" (demo; sin backend de lookup aún). */
-export const MY_ORDERS: MyOrder[] = [
-  { id: '1042', date: 'Hoy · 12:48', items: 'Milanesa de ternera, Bife de chorizo, Asado tira', total: 32400, status: 'preparing' },
-  { id: '1021', date: '2 jun · 19:30', items: 'Vacío, Chorizos parrilleros', total: 18700, status: 'delivered' },
-  { id: '0998', date: '24 may · 11:15', items: 'Milanesa de pollo, Hamburguesas caseras', total: 17100, status: 'delivered' },
-];
-
 export const CONTACT_INFO = {
   address: 'Av. San Martín 1234, Junín (B)',
   hours: 'Lun a Sáb · 08–22 h · Dom cerrado',

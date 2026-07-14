@@ -37,7 +37,7 @@ export default function AdminProductsPage() {
         page,
         limit: LIMIT,
         categoryId: categoryId || undefined,
-        includeInactive: false, // Solo activos: al eliminar (soft delete) desaparece de la lista
+        includeInactive: true, // Inactivo = pausado en la tienda; el admin lo sigue viendo. Los eliminados los filtra el backend (deleted).
       }),
     { revalidateOnFocus: false }
   );
@@ -282,7 +282,7 @@ export default function AdminProductsPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDeleteConfirm}
         title="¿Eliminar producto?"
-        message="Esta acción desactivará el producto. No se mostrará en el menú público."
+        message="El producto desaparecerá del panel y de la tienda. Si solo querés ocultarlo de la tienda, editalo y desmarcá «Activo»."
         confirmText="Eliminar"
         isDestructive
       />

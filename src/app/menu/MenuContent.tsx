@@ -207,6 +207,13 @@ export function MenuContent() {
                 </button>
               );
             })}
+            <button
+              className="ftab ftab-combos"
+              onClick={() => router.push('/combos')}
+            >
+              <Icon.flame />
+              Combos
+            </button>
           </div>
         </div>
 

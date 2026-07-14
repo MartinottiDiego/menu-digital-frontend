@@ -92,7 +92,7 @@ export default function AdminSettingsPage() {
   const field = (
     label: string,
     k: keyof Settings,
-    opts?: { placeholder?: string; textarea?: boolean }
+    opts?: { placeholder?: string; textarea?: boolean; rows?: number }
   ) => (
     <div>
       <label className="mb-2 block text-sm font-semibold text-gold-200">{label}</label>
@@ -101,8 +101,8 @@ export default function AdminSettingsPage() {
           value={String(data[k] ?? '')}
           onChange={(e) => set(k, e.target.value as Settings[typeof k])}
           placeholder={opts?.placeholder}
-          rows={2}
-          className={`${inputBase} resize-none`}
+          rows={opts?.rows ?? 2}
+          className={`${inputBase} resize-y`}
         />
       ) : (
         <input
@@ -266,10 +266,37 @@ export default function AdminSettingsPage() {
       </Panel>
 
       <Panel style={{ padding: 24 }}>
+        <h3 className="mb-4 font-display text-[20px] text-cream">Portada (hero)</h3>
+        <p className="mb-4 text-sm text-white/60">
+          Textos grandes de la pantalla de inicio. El título se muestra en dos
+          líneas: la primera en crema y la segunda en dorado.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            {field('Chapita de ubicación (arriba del título)', 'heroBadge', {
+              placeholder: 'Barrio Real · Junín (B)',
+            })}
+          </div>
+          {field('Título · línea 1 (crema)', 'heroTitle1', {
+            placeholder: 'Calidad que se siente,',
+          })}
+          {field('Título · línea 2 (dorada)', 'heroTitle2', {
+            placeholder: 'confianza que vuelve',
+          })}
+          <div className="sm:col-span-2">
+            {field('Bajada (debajo del título)', 'heroSubtitle', { textarea: true })}
+          </div>
+        </div>
+      </Panel>
+
+      <Panel style={{ padding: 24 }}>
         <h3 className="mb-4 font-display text-[20px] text-cream">Nosotros</h3>
         <div className="space-y-4">
           {field('Título', 'aboutTitle')}
-          {field('Historia (un párrafo por línea)', 'aboutText', { textarea: true })}
+          {field('Historia (un párrafo por línea)', 'aboutText', {
+            textarea: true,
+            rows: 7,
+          })}
           <div>
             <label className="mb-2 block text-sm font-semibold text-gold-200">Foto</label>
             <ImageUploader

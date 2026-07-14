@@ -10,6 +10,7 @@ import type {
   ProcessPaymentPayload,
   ProcessPaymentResponse,
   PublicTracking,
+  PublicMyOrder,
 } from './types';
 
 async function handleResponse<T>(res: Response): Promise<T> {
@@ -85,6 +86,16 @@ export const api = {
   getTracking: async (token: string) => {
     const res = await fetch(`${API_URL}/orders/track/${token}`);
     return handleResponse<PublicTracking>(res);
+  },
+
+  // "Mis pedidos": pedidos recientes de un email (datos mínimos, sin dirección ni pago).
+  getMyOrders: async (email: string) => {
+    const res = await fetch(`${API_URL}/orders/my-orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    return handleResponse<PublicMyOrder[]>(res);
   },
 
   // Recuperar seguimiento: reenvía los links al email (no revela si existe).

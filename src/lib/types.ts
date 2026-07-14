@@ -92,6 +92,16 @@ export interface PublicTracking {
   }[];
 }
 
+/** Fila de "Mis pedidos" (búsqueda pública por email, datos mínimos). */
+export interface PublicMyOrder {
+  orderNumber: string;
+  status: OrderStatus;
+  total: number;
+  createdAt: string;
+  trackingToken: string | null;
+  items: string[];
+}
+
 /** Método de entrega del pedido. */
 export type DeliveryMethod = 'delivery' | 'pickup';
 

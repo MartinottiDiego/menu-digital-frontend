@@ -83,19 +83,18 @@ export function HomeContent() {
 
         <div className="relative z-[5] mx-auto flex max-w-[760px] flex-col items-center gap-[18px] px-6 pb-12 pt-8 text-center lg:gap-[22px] lg:pb-[110px] lg:pt-[44px]">
           <div className="geo-pill">
-            <Icon.mapPin /> Barrio Real · Junín (B)
+            <Icon.mapPin /> {settings.heroBadge}
           </div>
           <h1
             className="font-display text-cream text-[34px] leading-[0.96] lg:whitespace-nowrap lg:text-[66px] lg:leading-[0.92]"
             style={{ textShadow: '0 4px 24px rgba(0,0,0,.75)' }}
           >
-            Calidad que se siente,
+            {settings.heroTitle1}
             <br />
-            <span className="text-gold">confianza que vuelve</span>
+            <span className="text-gold">{settings.heroTitle2}</span>
           </h1>
           <p className="m-0 max-w-[280px] text-[13.5px] leading-[1.5] text-tan lg:max-w-[460px] lg:text-[17px]">
-            Cortes seleccionados y milanesas elaboradas al día. Del mostrador a
-            tu casa.
+            {settings.heroSubtitle}
           </p>
           <div className="flex w-full flex-col gap-[11px] lg:mt-1 lg:w-auto lg:flex-row lg:gap-[14px]">
             <Link

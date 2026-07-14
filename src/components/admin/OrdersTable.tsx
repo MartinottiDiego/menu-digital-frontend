@@ -15,6 +15,18 @@ function getTotalItems(order: Order): number {
   return order.items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
+function formatDateTime(dateStr: string): { date: string; time: string } {
+  const d = new Date(dateStr);
+  return {
+    date: d.toLocaleDateString('es-AR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }),
+    time: d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+  };
+}
+
 export function OrdersTable({
   orders,
   onViewDetail,
@@ -28,6 +40,9 @@ export function OrdersTable({
           <tr className="border-b border-white/10 bg-dark-700">
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gold-200">
               # Orden
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gold-200">
+              Fecha
             </th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gold-200">
               Cliente
@@ -54,6 +69,14 @@ export function OrdersTable({
             >
               <td className="px-4 py-3 font-mono text-sm text-gold-200">
                 {order.orderNumber}
+              </td>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <span className="block text-sm text-white/90">
+                  {formatDateTime(order.createdAt).date}
+                </span>
+                <span className="block text-sm text-white/60">
+                  {formatDateTime(order.createdAt).time} h
+                </span>
               </td>
               <td className="px-4 py-3">
                 <div>
@@ -108,6 +131,10 @@ export function OrdersTable({
                 </span>
                 <span className="block truncate font-medium text-white">
                   {order.customerName}
+                </span>
+                <span className="block text-sm text-white/60">
+                  {formatDateTime(order.createdAt).date} ·{' '}
+                  {formatDateTime(order.createdAt).time} h
                 </span>
               </div>
               <div className="shrink-0">

@@ -25,7 +25,7 @@ export default function AdminCategoriesPage() {
     () =>
       adminApi.getAllCategories({
         limit: 100,
-        includeInactive: false,
+        includeInactive: true, // Inactiva = pausada en la tienda; el admin la sigue viendo. Las eliminadas las filtra el backend (deleted).
       }),
     { revalidateOnFocus: false }
   );
@@ -151,7 +151,7 @@ export default function AdminCategoriesPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDeleteConfirm}
         title="¿Eliminar categoría?"
-        message="Esta acción desactivará la categoría. No se mostrará en el menú público. Si tiene productos asociados, no podrá eliminarse."
+        message="La categoría desaparecerá del panel y de la tienda. Si solo querés ocultarla de la tienda, editala y desmarcá «Activa». Si tiene productos asociados, no podrá eliminarse."
         confirmText="Eliminar"
         isDestructive
       />

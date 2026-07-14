@@ -18,6 +18,11 @@ export interface Settings {
   lat: number | null;
   lng: number | null;
   mapZoom: number;
+  // Hero de la portada
+  heroBadge: string;
+  heroTitle1: string;
+  heroTitle2: string;
+  heroSubtitle: string;
   // Nosotros
   aboutTitle: string;
   aboutText: string;
@@ -43,6 +48,11 @@ export const DEFAULT_SETTINGS: Settings = {
   lat: -34.6405,
   lng: -60.994833,
   mapZoom: 16,
+  heroBadge: 'Barrio Real · Junín (B)',
+  heroTitle1: 'Calidad que se siente,',
+  heroTitle2: 'confianza que vuelve',
+  heroSubtitle:
+    'Cortes seleccionados y milanesas elaboradas al día. Del mostrador a tu casa.',
   aboutTitle: 'Carniceros de tres generaciones',
   aboutText:
     'MIINUTA nació como una carnicería de barrio en Junín y sigue siéndolo. Lo que cambió es que ahora llegamos a tu casa con la misma calidad de siempre.\n\nElegimos cada corte, elaboramos las milanesas todos los días y atendemos como nos gusta que nos atiendan: de frente y sin vueltas.',
